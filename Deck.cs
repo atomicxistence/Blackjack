@@ -51,18 +51,5 @@ namespace Blackjack
             deck.RemoveAt(0);
             return deck;
         }
-        //Checks to see if an Ace is drawn
-        public int aceCheck(string card)
-        {
-            int aceNum;
-            if (card[0].ToString() == "A")
-            {
-                aceNum = 1;
-            }else
-            {
-                aceNum = 0;
-            }
-            return aceNum;
-        }
     }
 }

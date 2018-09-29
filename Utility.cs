@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Blackjack
 {
-    public class Utility
+    public static class Utility
     {
         //Centers the text, outputs the string passed to it
         public static void CenterText(string text)
@@ -60,20 +60,20 @@ namespace Blackjack
             BottomBorder();
         }
         //Displays the game screen with player/dealer info
-        public static void GameScreen(string playerHand, string dealerHand, string message)
+        public static void GameScreen(string playerHand, int playerChips, string dealerHand, string message)
         {
             TopBorder();
-            PlayerInfo(playerHand);
+            PlayerInfo(playerHand, playerChips);
             DealerInfo(dealerHand);
             Console.SetCursorPosition((Console.WindowWidth / 2) - (message.Length / 2), (Console.WindowHeight / 2) - 5);
             Console.Write(message);
             BottomBorder();
         }
         //Displays the game screen with player/dealer info and an instruction
-        public static void GameScreen(string playerHand, string dealerHand, string message, string subMessage)
+        public static void GameScreen(string playerHand, int playerChips, string dealerHand, string message, string subMessage)
         {
             TopBorder();
-            PlayerInfo(playerHand);
+            PlayerInfo(playerHand, playerChips);
             DealerInfo(dealerHand);
             Console.SetCursorPosition((Console.WindowWidth / 2) - (message.Length / 2), (Console.WindowHeight / 2) - 5);
             Console.Write(message);
@@ -156,11 +156,11 @@ namespace Blackjack
             Console.WriteLine(SuitBorderOuter(Console.WindowWidth));
             Console.ResetColor();
         }
-        private static void PlayerInfo(string playerHand)
+        private static void PlayerInfo(string playerHand, int playerChips)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.SetCursorPosition((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2) - 1);
-            Console.Write("Player");
+            Console.Write("Player - {0} chips", playerChips);
             Console.ResetColor();
             Console.SetCursorPosition((Console.WindowWidth / 2) - 20, (Console.WindowHeight / 2));
             Console.Write("Hand: {0}", playerHand);
