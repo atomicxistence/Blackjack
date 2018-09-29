@@ -40,8 +40,8 @@ namespace Blackjack
                 Thread.Sleep(shuffleTime);
             }
         }
-    //Displays the game screen with on given string
-    public static void GameScreen(string title)
+        //Displays the game screen with a single given string
+        public static void GameScreen(string title)
         {
             TopBorder();
             Console.SetCursorPosition((Console.WindowWidth / 2) - (title.Length / 2), (Console.WindowHeight / 2));

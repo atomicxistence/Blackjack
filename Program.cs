@@ -47,7 +47,6 @@ namespace Blackjack
                     currentDeck = deck.Shuffle(deck.New());
                     Utility.ShuffleAnimation(5, shuffleTime);
                 }
-
                 //deal player 2 cards
                 for (int i = 0; i < 2; i++)
                 {
@@ -113,21 +112,21 @@ namespace Blackjack
                         gameReset = true;
                     }
                 }
+                hit = true;
                 if (!gameReset)
                 {
-                    dealer.hand = hiddenCard + shownCard;
                     Utility.GameScreen(player.hand, dealer.hand, "Dealer's Turn");
                     Thread.Sleep(longSleepTime);
-                    if (dealer.handValue == blackjack)
+                    dealer.hand = hiddenCard + shownCard;
+                    if (dealer.handValue >= dealerMin && dealer.handValue <= blackjack)
                     {
-                        gameReset = true;
+                        hit = false;
                         Utility.GameScreen(player.hand, dealer.hand, "Dealer STAYS");
                         Thread.Sleep(longSleepTime);
                     }
                 }
                 //dealer's turn
-                hit = true;
-                while (!gameReset)
+                while (!gameReset && hit)
                 {
                     dealer.handValue += dealer.CardValue(deck.Draw(currentDeck));
                     dealer.hand += deck.Draw(currentDeck);
@@ -173,6 +172,23 @@ namespace Blackjack
                         gameReset = true;
                     }
                 }
+                //Test when dealer sticks with opening hand
+                if (!gameReset && !hit)
+                {
+                    if (player.handValue > dealer.handValue)
+                    {
+                        gamesWon += 1;
+                        Utility.GameScreen(player.hand, dealer.hand, "You won!", "Press ENTER to continue");
+                        Utility.UserInput();
+                        gameReset = true;
+                    }
+                    else
+                    {
+                            Utility.GameScreen(player.hand, dealer.hand, "The house won...", "Press ENTER to continue");
+                            Utility.UserInput();
+                            gameReset = true;
+                    }
+                 }
                 //Game Reset
                 bool isAnswering = true;
                 numGames += 1;
@@ -196,7 +212,6 @@ namespace Blackjack
                     }
                 }
             }
-            Console.Clear();
             Utility.GameScreen("GAME OVER", "Press ENTER to exit");
             Utility.UserInput();
             Environment.Exit(0);
