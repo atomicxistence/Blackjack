@@ -8,9 +8,11 @@ namespace Blackjack
     {
         static void Main(string[] args)
         {
+            //Intialize class objects
             Player player = new Player();
             Player dealer = new Player();
             Deck deck = new Deck();
+            //Intitialize variables
             int blackjack = 21;
             int dealerMin = 17;
             int lowDeck = 15;
@@ -22,16 +24,18 @@ namespace Blackjack
             bool isPlaying = true;
             List<string> currentDeck = new List<string>();
             Console.CursorVisible = false;
+            //Start the game
             Utility.GameScreen("BLACKJACK by atomic-games", "Press ENTER to continue");
             Utility.UserInput();
+            //Main Game Engine
             while (isPlaying && player.chips > 0)
             {
+                //Initialize Game Engine variables
                 string hiddenCard;
                 string shownCard;
                 bool hit = true;
                 bool gameReset = false;
                 bool isAnswering = true;
-                bool valid = false;
                 int bet = 0;
                 player.hand = "";
                 dealer.hand = "";
@@ -54,8 +58,7 @@ namespace Blackjack
                 do
                 {
                     bet = GameLogic.ValidNumber(player.hand, player.chips, dealer.hand, "Place your bet!");
-                    valid = GameLogic.IsBetValid(player.hand, player.chips, dealer.hand, bet);
-                } while (!valid);
+                } while (!GameLogic.IsBetValid(player.hand, player.chips, dealer.hand, bet));
                 player.chips -= bet;
                 //deal player 2 cards
                 for (int i = 0; i < 2; i++)
@@ -124,32 +127,23 @@ namespace Blackjack
                     }
                 }
                 hit = true;
-                if (!gameReset)
-                {
-                    Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealer's Turn");
-                    Thread.Sleep(longSleepTime);
-                    dealer.hand = hiddenCard + shownCard;
-                    if (dealer.handValue >= dealerMin && dealer.handValue <= blackjack)
-                    {
-                        hit = false;
-                        Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealer STAYS");
-                        Thread.Sleep(longSleepTime);
-                    }
-                }
                 //dealer's turn
                 while (!gameReset && hit)
                 {
-                    dealer.handValue += GameLogic.CardValue(deck.Draw(currentDeck));
-                    dealer.hand += deck.Draw(currentDeck);
-                    dealer.numAces += GameLogic.AceCheck(deck.Draw(currentDeck));
-                    currentDeck = deck.RemoveCard(currentDeck);
-                    Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
-                    Thread.Sleep(sleepTime);
                     if (dealer.handValue >= dealerMin && dealer.handValue <= blackjack)
                     {
                         Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealer STAYS");
                         Thread.Sleep(longSleepTime);
                         hit = false;
+                    }
+                    if (hit)
+                    {
+                        dealer.handValue += GameLogic.CardValue(deck.Draw(currentDeck));
+                        dealer.hand += deck.Draw(currentDeck);
+                        dealer.numAces += GameLogic.AceCheck(deck.Draw(currentDeck));
+                        currentDeck = deck.RemoveCard(currentDeck);
+                        Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
+                        Thread.Sleep(sleepTime);
                     }
                     if (dealer.handValue > blackjack && dealer.numAces > 0)
                     {
@@ -186,24 +180,6 @@ namespace Blackjack
                         gameReset = true;
                     }
                 }
-                //Test when dealer sticks with opening hand
-                if (!gameReset && !hit)
-                {
-                    if (player.handValue > dealer.handValue)
-                    {
-                        gamesWon += 1;
-                        player.chips += (bet * 2);
-                        Utility.GameScreen(player.hand, player.chips, dealer.hand, "You won!", "Press ENTER to continue");
-                        Utility.UserInput();
-                        gameReset = true;
-                    }
-                    else
-                    {
-                            Utility.GameScreen(player.hand, player.chips, dealer.hand, "The house won...", "Press ENTER to continue");
-                            Utility.UserInput();
-                            gameReset = true;
-                    }
-                 }
                 //Game Reset
                 isAnswering = true;
                 numGames += 1;
@@ -227,6 +203,7 @@ namespace Blackjack
                     }
                 }
             }
+            //Message if the player is broke and is still trying to play
             if (player.chips <= 0 && isPlaying)
             {
                 Utility.GameScreen("You're broke!", "Better luck next time.");
