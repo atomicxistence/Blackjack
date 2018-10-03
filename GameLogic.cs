@@ -45,7 +45,7 @@ namespace Blackjack
             {
                 Utility.GameScreen(playerHand, playerChips, dealerHand, message);
                 string numInput = Utility.UserInput();
-                if (Int32.TryParse(numInput,out number))
+                if (Int32.TryParse(numInput, out number))
                 {
                     valid = true;
                 }
@@ -73,6 +73,33 @@ namespace Blackjack
             }
             valid |= (bet > 0 && bet <= playerChips);
             return valid;
+        }
+        //Asks if a player wants to double down
+        public static bool IsDoubleDown(string playerHand, int playerChips, string dealerHand, int bet)
+        {
+            bool isAnswering = true;
+            bool doubleDown = false;
+            string instructions = "You will double your bet of " + bet + " and draw only one more card.";
+            while (isAnswering)
+            {
+                Utility.GameScreen(playerHand, playerChips, dealerHand, "Do you want to double down? (y/n)", instructions);
+                string response = Utility.UserInput();
+                switch (response.ToLower())
+                {
+                    case "y":
+                        doubleDown = true;
+                        isAnswering = false;
+                        break;
+                    case "n":
+                        isAnswering = false;
+                        break;
+                    default:
+                        Utility.GameScreen(playerHand, playerChips, dealerHand, "That's not one of the options.", "Press ENTER to try again");
+                        Utility.UserInput();
+                        break;
+                }
+            }
+            return doubleDown;
         }
     }
 }
