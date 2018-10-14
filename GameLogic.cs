@@ -52,7 +52,7 @@ namespace Blackjack
                 else
                 {
                     Utility.GameScreen(playerHand, playerChips, dealerHand, "Please enter a valid number", "Press ENTER to try again");
-                    Utility.UserInput();
+                    Console.ReadLine();
                 }
             } while (!valid);
             return number;
@@ -64,12 +64,12 @@ namespace Blackjack
             if (bet <= 0)
             {
                 Utility.GameScreen(playerHand, playerChips, dealerHand, "Please enter a bet greater than 0", "Press ENTER to try again");
-                Utility.UserInput();
+                Console.ReadLine();
             }
             if (bet > playerChips)
             {
                 Utility.GameScreen(playerHand, playerChips, dealerHand, "You do not have enough chips for that bet", "Press ENTER to try again");
-                Utility.UserInput();
+                Console.ReadLine();
             }
             valid |= (bet > 0 && bet <= playerChips);
             return valid;
@@ -95,7 +95,7 @@ namespace Blackjack
                         break;
                     default:
                         Utility.GameScreen(playerHand, playerChips, dealerHand, "That's not one of the options.", "Press ENTER to try again");
-                        Utility.UserInput();
+                        Console.ReadLine();
                         break;
                 }
             }

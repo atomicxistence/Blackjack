@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.IO;
 
 namespace Blackjack
 {
@@ -21,16 +22,24 @@ namespace Blackjack
             int sleepTime = 1000;
             int longSleepTime = 2000;
             int shuffleTime = 100;
+            int maxUserNameLength = 17;
             bool isPlaying = true;
             List<string> currentDeck = new List<string>();
+            List<HighRollers> highRollers = new List<HighRollers>();
             Console.CursorVisible = false;
+            //TODO: Test for console window width, min = 
+            //TODO: Make FileIO operations async to load the app faster
+            //Check for save file
+            FileIO.VerifySaveFile();
+            //Load the information from the save file
+            highRollers = FileIO.LoadSaveFile(highRollers);
             //Start the game
-            Utility.GameScreen("BLACKJACK by atomic-games", "Press ENTER to continue");
-            Utility.UserInput();
+            Utility.GameScreen("BLACKJACK by atomic-games", "Press ENTER to continue", highRollers);
+            Console.ReadLine();
             //Main Game Engine
             while (isPlaying && player.chips > 0)
             {
-                //Initialize Game Engine variables
+                //Initialize or Reset Game Engine variables
                 string hiddenCard;
                 string shownCard;
                 bool hit = true;
@@ -67,6 +76,14 @@ namespace Blackjack
                 currentDeck = deck.RemoveCard(currentDeck);
                 Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
                 Thread.Sleep(sleepTime);
+                //Deal dealer's first card
+                shownCard = deck.Draw(currentDeck);
+                dealer.hand += deck.Draw(currentDeck);
+                dealer.handValue += GameLogic.CardValue(deck.Draw(currentDeck));
+                dealer.numAces += GameLogic.AceCheck(deck.Draw(currentDeck));
+                currentDeck = deck.RemoveCard(currentDeck);
+                Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
+                Thread.Sleep(sleepTime);
                 //Double down - double the intitial bet and draw a single card
                 if (player.handValue >= 9 && player.handValue <= 11 && player.chips >= bet)
                 {
@@ -85,19 +102,12 @@ namespace Blackjack
                 currentDeck = deck.RemoveCard(currentDeck);
                 Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
                 Thread.Sleep(sleepTime);
-                //deal dealer 2 cards, one is unseen
+                //Deal dealer's second card
                 hiddenCard = deck.Draw(currentDeck);
                 dealer.handValue += GameLogic.CardValue(hiddenCard);
                 dealer.numAces += GameLogic.AceCheck(deck.Draw(currentDeck));
                 currentDeck = deck.RemoveCard(currentDeck);
                 dealer.hand += "?? ";
-                Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
-                Thread.Sleep(sleepTime);
-                shownCard = deck.Draw(currentDeck);
-                dealer.hand += deck.Draw(currentDeck);
-                dealer.handValue += GameLogic.CardValue(deck.Draw(currentDeck));
-                dealer.numAces += GameLogic.AceCheck(deck.Draw(currentDeck));
-                currentDeck = deck.RemoveCard(currentDeck);
                 Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealing cards...");
                 Thread.Sleep(sleepTime);
                 //BLACKJACK!
@@ -106,7 +116,7 @@ namespace Blackjack
                     gamesWon += 1;
                     player.chips += (bet * 2);
                     Utility.GameScreen(player.hand, player.chips, dealer.hand, "BLACKJACK!", "Press ENTER to continue");
-                    Utility.UserInput();
+                    Console.ReadLine();
                     gameReset = true;
                 }
                 //player's turn
@@ -127,7 +137,7 @@ namespace Blackjack
                             break;
                         default:
                             Utility.GameScreen(player.hand, player.chips, dealer.hand, "That's not one of the options", "Press ENTER to try again.");
-                            Utility.UserInput();
+                            Console.ReadLine();
                             break;
                     }
                     if (player.handValue > blackjack && player.numAces > 0)
@@ -138,7 +148,7 @@ namespace Blackjack
                     if (player.handValue > blackjack && player.numAces == 0)
                     {
                         Utility.GameScreen(player.hand, player.chips, dealer.hand, "Player bust!", "Press ENTER to continue");
-                        Utility.UserInput();
+                        Console.ReadLine();
                         gameReset = true;
                     }
                 }
@@ -148,7 +158,7 @@ namespace Blackjack
                 {
                     Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealer's Turn");
                     Thread.Sleep(sleepTime);
-                    dealer.hand = hiddenCard + shownCard;
+                    dealer.hand = shownCard + hiddenCard;
                     Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealer's Turn");
                     Thread.Sleep(sleepTime);
                     if (dealer.handValue >= dealerMin && dealer.handValue <= blackjack)
@@ -179,7 +189,7 @@ namespace Blackjack
                         gamesWon += 1;
                         player.chips += (bet * 2);
                         Utility.GameScreen(player.hand, player.chips, dealer.hand, "Dealer bust!", "Press ENTER to continue");
-                        Utility.UserInput();
+                        Console.ReadLine();
                         gameReset = true;
                     }
                     if (dealer.handValue >= dealerMin && dealer.handValue <= blackjack)
@@ -193,20 +203,20 @@ namespace Blackjack
                         gamesWon += 1;
                         player.chips += (bet * 2);
                         Utility.GameScreen(player.hand, player.chips, dealer.hand, "You won!", "Press ENTER to continue");
-                        Utility.UserInput();
+                        Console.ReadLine();
                         gameReset = true;
                     }
                     if (player.handValue == dealer.handValue && !hit)
                     {
                         player.chips += bet;
                         Utility.GameScreen(player.hand, player.chips, dealer.hand, "Tie game", "Press ENTER to continue");
-                        Utility.UserInput();
+                        Console.ReadLine();
                         gameReset = true;
                     }
                     if (player.handValue < dealer.handValue && !hit)
                     {
                         Utility.GameScreen(player.hand, player.chips, dealer.hand, "The house won...", "Press ENTER to continue");
-                        Utility.UserInput();
+                        Console.ReadLine();
                         gameReset = true;
                     }
                 }
@@ -216,19 +226,19 @@ namespace Blackjack
                 while (gameReset && isAnswering)
                 {
                     string winRateAndChips = "You've won " + gamesWon + " of " + numGames + " games. You have " + player.chips + " chips.";
-                    Utility.GameScreen("Would you like to play again? (y/n)", winRateAndChips);
+                    Utility.GameScreen("Would you like to cash out? (y/n)", winRateAndChips, highRollers);
                     switch (Utility.UserInput().ToLower())
                     {
                         case "y":
                             isAnswering = false;
-                        break;
-                        case "n":
                             isPlaying = false;
+                            break;
+                        case "n":
                             isAnswering = false;
-                        break;
+                            break;
                         default:
                             Utility.GameScreen("That's not one of the options. Press ENTER to try again.");
-                            Utility.UserInput();
+                            Console.ReadLine();
                             break;
                     }
                 }
@@ -239,8 +249,21 @@ namespace Blackjack
                 Utility.GameScreen("You're broke!", "Better luck next time.");
                 Thread.Sleep(longSleepTime);
             }
+            //High Roller
+            string amount = string.Format("{0:C0}", player.chips);
+            string cashOut = "You made " + amount + "!";
+            if (player.chips > HighRollers.ChipTotalToBeat(highRollers))
+            {
+                Utility.GameScreen(cashOut, "Press ENTER to add your name to the high rollers.");
+                Console.ReadLine();
+                player.name = Utility.UserName(maxUserNameLength);
+                HighRollers currentPlayer = new HighRollers { Name = player.name , ChipTotal = player.chips};
+                highRollers.Add(currentPlayer);
+                highRollers = HighRollers.TopFive(highRollers);
+                FileIO.SaveFile(highRollers);
+            }
             Utility.GameScreen("GAME OVER", "Press ENTER to exit");
-            Utility.UserInput();
+            Console.ReadLine();
             Environment.Exit(0);
         }
     }

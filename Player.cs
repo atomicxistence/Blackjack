@@ -3,11 +3,12 @@ namespace Blackjack
 {
     class Player
     {
-        public string hand;
-        public int handValue = 0;
-        public int numAces = 0;
-        public int chips = 100;
-        public int bet = 0;
+        internal string hand = "";
+        internal int handValue = 0;
+        internal int numAces = 0;
+        internal int chips = 100;
+        internal int bet = 0;
+        internal string name = "";
     }
 
 }
